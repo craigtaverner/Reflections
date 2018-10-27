@@ -18,11 +18,14 @@ public class DoorLatch : MonoBehaviour {
     private Vector3 basePosition;
 
 	void Start () {
+        if (this.door == null)
+        {
+            this.door = this.transform.parent.gameObject;
+        }
         this.basePosition = this.transform.position;
-        this.doorHinge = door.GetComponent<HingeJoint>();
+        this.doorHinge = this.door.GetComponent<HingeJoint>();
         this.active = false;
         LockDoor(locked);
-        door.GetComponent<GUIText>().material.color = Color.red;
 	}
 	
 	void Update () {

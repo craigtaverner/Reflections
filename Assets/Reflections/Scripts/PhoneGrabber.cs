@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PhoneGrabber : MonoBehaviour {
-
-    public Transform phoneTransform;
-    public NVRHand hand;
+    internal NVRHand hand;
     public Camera avatarCamera;
     public Camera phoneCamera;
     internal PhoneController heldPhone;
@@ -46,10 +44,25 @@ public class PhoneGrabber : MonoBehaviour {
                         other.heldPhone = null;
                     }
                 }
-                phone.hand = hand;
+                phone.SetHand(hand);
                 this.heldPhone = phone;
-                hand.DeregisterInteractable(phone.GetComponent<NVRInteractable>());
+                NotifyZombies(true);
             }
+            else if (this.heldPhone != null)
+            {
+                Debug.Log("Gabbing something else - drop phone");
+                this.heldPhone.SetHand(null);
+                this.heldPhone = null;
+                NotifyZombies(false);
+            }
+        }
+    }
+
+    internal void NotifyZombies(bool followPlayer)
+    {
+        foreach (ZombieMirror zombie in Component.FindObjectsOfType<ZombieMirror>())
+        {
+            zombie.followPlayer = followPlayer;
         }
     }
 }

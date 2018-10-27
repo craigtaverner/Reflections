@@ -13,6 +13,7 @@ public class LightFlickering : MonoBehaviour {
     public Light mirrorLight;
     private Light lightSource;
     private long keepOffCount=0;
+    public bool debug = false;
 
     void Start()
     {
@@ -37,7 +38,7 @@ public class LightFlickering : MonoBehaviour {
                 this.flickerWaitTicks = (long)(TimeSpan.TicksPerSecond * flickerWaitSeconds);
                 SetIntensity(0.01f);
                 this.keepOffCount = (long)UnityEngine.Random.Range(0, 5);
-                Debug.Log("Turning off light for " + keepOffCount + " frames, and waiting " + flickerWaitSeconds + "s before doing this again (" + flickerWaitTicks + " ticks)");
+                if (debug) Debug.Log("Turning off light for " + keepOffCount + " frames, and waiting " + flickerWaitSeconds + "s before doing this again (" + flickerWaitTicks + " ticks)");
             }
             else
             {

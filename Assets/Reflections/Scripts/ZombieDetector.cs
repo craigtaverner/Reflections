@@ -144,6 +144,7 @@ public class ZombieDetector : MonoBehaviour {
     private void KillPlayer(ZombieMirror zombie)
     {
         Debug.Log("Killing Player");
+        this.head.transform.Rotate(new Vector3(10, 10, 10));
         float delay = killDuration;
         StartAttackAnimation(zombie);
         FadeViewTo(Color.red, delay);
@@ -160,6 +161,12 @@ public class ZombieDetector : MonoBehaviour {
     public void ResetScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Invoke("ClearColor", 2);
+        FadeViewTo(Color.clear, 1);
+    }
+
+    public void ClearColor()
+    {
         FadeViewTo(Color.clear, 1);
     }
 

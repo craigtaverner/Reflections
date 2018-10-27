@@ -40,6 +40,7 @@ public class MirrorSync : MonoBehaviour {
     public Transform leftHandObj = null;
     public Transform lookObj = null;
     public Transform avatarCamera = null;
+    public bool debug = false;
 
     private Vector3 hiddenPosition;
     private bool validMirror;
@@ -92,7 +93,7 @@ public class MirrorSync : MonoBehaviour {
     {
         Vector3 pos = head.position;
         Vector3 angles = head.eulerAngles;
-        //Debug.Log("Head direction: " + angles);
+        //DebugLog("Head direction: " + angles);
         float ex = 360 - angles.x;
         if (ex > 180) ex -= 360;
         float ey = angles.y - 90;
@@ -101,12 +102,12 @@ public class MirrorSync : MonoBehaviour {
         {
             ex = -ex;
         }
-        //Debug.Log("Looking up by angle: " + ex);
-        //Debug.Log("Looking right by angle: " + ey);
+        //DebugLog("Looking up by angle: " + ex);
+        //DebugLog("Looking right by angle: " + ey);
         float y = (xMirrors[whichMirror] - pos.x) * Mathf.Tan(Mathf.PI * ex / 180);
         float z = (xMirrors[whichMirror] - pos.x) * Mathf.Tan(Mathf.PI * ey / 180);
         lookAt.position = new Vector3(xMirrors[whichMirror], pos.y + y, pos.z - z);
-        //Debug.Log("Placed lookat object: " + lookAt.position);
+        //DebugLog("Placed lookat object: " + lookAt.position);
     }
 
     private void UpdateHandObjectForIK(NVRHand hand, Transform fakeHand)
@@ -149,7 +150,7 @@ public class MirrorSync : MonoBehaviour {
         if (angles.y < 180)
         {
             // The player is looking away from the avatar, we should move the avatar to the opposite side and rotate it by 180 to face the player
-            Debug.Log("Looking in secondary direction: angles.y=" + angles.y);
+            DebugLog("Looking in secondary direction: angles.y=" + angles.y);
             this.whichMirror = xMirrors.Length - 1;
             this.eyeDirection = -90;
             tiltShiftFactorMirror = 0 - tiltShiftFactor;
@@ -158,7 +159,7 @@ public class MirrorSync : MonoBehaviour {
         else
         {
             // The player is looking at the avatar, we should keep the default avatar position and rotation
-            Debug.Log("Looking in primary direction: angles.y=" + angles.y);
+            DebugLog("Looking in primary direction: angles.y=" + angles.y);
             this.eyeDirection = 90;
         }
         float ex = angles.x;
@@ -175,20 +176,25 @@ public class MirrorSync : MonoBehaviour {
         {
             this.transform.position = newPosition;
             Vector3 avatarAngles = this.transform.eulerAngles;
-            Debug.Log("Based on mirror[" + whichMirror + "] - setting avatar rotation to " + rotation);
+            DebugLog("Based on mirror[" + whichMirror + "] - setting avatar rotation to " + rotation);
             this.transform.eulerAngles = new Vector3(avatarAngles.x, rotation, avatarAngles.z);
-            Debug.Log("Headset at: " + pos);
-            Debug.Log("Avatar at: " + this.transform.position);
-            Debug.Log("Avatar angles: " + this.transform.eulerAngles);
+            DebugLog("Headset at: " + pos);
+            DebugLog("Avatar at: " + this.transform.position);
+            DebugLog("Avatar angles: " + this.transform.eulerAngles);
             SetAvatarAngles(ex, ey, ez);
             return true;
         }
         else
         {
-            Debug.Log("Position is out of bounds - hiding avatar");
+            DebugLog("Position is out of bounds - hiding avatar");
             this.transform.position = hiddenPosition;
             return false;
         }
+    }
+
+    private void DebugLog(string message)
+    {
+        if (debug) Debug.Log(message);
     }
 
     private void SetAvatarAngles(float ex, float ey, float ez)
@@ -231,24 +237,24 @@ public class MirrorSync : MonoBehaviour {
 
     private bool IsPositionValid(Vector3 pos)
     {
-        bool debug = xMirrors[whichMirror] == 0;
-        if(debug) Debug.Log("Checking avatar in mirror at " + xMirrors[whichMirror] + " and position " + pos);
+        bool debug = false;// xMirrors[whichMirror] == 0;
+        if(debug) DebugLog("Checking avatar in mirror at " + xMirrors[whichMirror] + " and position " + pos);
         if (xMax - xMin < 0.001 || zMax - zMin < 0.001)
         {
-            if (debug) Debug.Log("Avatar position valid due to no limitations");
+            if (debug) DebugLog("Avatar position valid due to no limitations");
             return true;
         }
         if (pos.x < xMin || pos.x > xMax)
         {
-            if (debug) Debug.Log("Avatar position invalid due to being outside x range: " + xMin + ".." + xMax);
+            if (debug) DebugLog("Avatar position invalid due to being outside x range: " + xMin + ".." + xMax);
             return false;
         }
         if (pos.z < zMin || pos.z > zMax)
         {
-            if (debug) Debug.Log("Avatar position invalid due to being outside z range: " + zMin + ".." + zMax);
+            if (debug) DebugLog("Avatar position invalid due to being outside z range: " + zMin + ".." + zMax);
             return false;
         }
-        if (debug) Debug.Log("Avatar position valid: " + pos);
+        if (debug) DebugLog("Avatar position valid: " + pos);
         return true;
     }
 
