@@ -10,7 +10,6 @@ namespace Reflections
     {
         public NVRPlayer player;
         public Camera head;
-
         public float minX = 0;
         public float maxX = 0;
         public float minZ = 0;
@@ -29,7 +28,7 @@ namespace Reflections
             }
             if (this.head == null)
             {
-                this.head = player.Head.GetComponent<Camera>();
+                this.head = this.player.Head.GetComponent<Camera>();
             }
             CheckValid();
         }
@@ -71,20 +70,21 @@ namespace Reflections
         {
             if (valid)
             {
-                if (IsPositionOutsideBounds(this.head.transform.position))
+                Vector3 pos = this.head.transform.position;
+                if (IsPositionOutsideBounds(pos))
                 {
                     if (outsideX)
                     {
+                        Debug.Log(string.Format("Player %s is outside valid x-range: x=(%f,%f), z=(%f,%f)", pos.ToString(), minX, maxX, minZ, maxZ));
                         if (!faded)
                         {
                             this.faded = true;
-                            Debug.Log(string.Format("Head %s is outside valid range: x=(%f,%f), z=(%f,%f)", head.transform.position, minX, maxX, minZ, maxZ));
                             FadeViewTo(Color.black, 0.1f);
                         }
                     }
                     if (outsideZ)
                     {
-                        Vector3 pos = this.head.transform.position;
+                        Debug.Log(string.Format("Player %s is outside valid z-range: x=(%f,%f), z=(%f,%f)", pos.ToString(), minX, maxX, minZ, maxZ));
                         float newZ = pos.z;
                         if (newZ > maxZ)
                         {
@@ -94,11 +94,14 @@ namespace Reflections
                         {
                             newZ = newZ + maxZ - minZ;
                         }
-                        this.head.transform.position = new Vector3(pos.x, pos.y, newZ);
+                        // Use the head (camera) to determine out of bounds position, but set the player position (which sets player, hands and head)
+                        pos = this.player.transform.position;
+                        this.player.transform.position = new Vector3(pos.x, pos.y, newZ);
                     }
                 }
                 else if (faded)
                 {
+                    this.faded = false;
                     FadeViewTo(Color.clear, 0.2f);
                 }
             }
