@@ -19,6 +19,10 @@ namespace Reflections
         private ZombieMirror[] zombieMirrors;
         private ZombieMirror attackingZombie;
         private long startAttackTime;
+        private bool dying = false;
+        private Vector3 deathTranslation = Vector3.zero;
+        private Vector3 deathRotation = Vector3.zero;
+        private System.Random random = new System.Random();
 
         void Start()
         {
@@ -56,9 +60,16 @@ namespace Reflections
 
         void Update()
         {
-            foreach (ZombieMirror zombieMirror in zombieMirrors)
+            if (this.dying)
             {
-                DetectZombie(zombieMirror);
+                DriftWorld();
+            }
+            else
+            {
+                foreach (ZombieMirror zombieMirror in zombieMirrors)
+                {
+                    DetectZombie(zombieMirror);
+                }
             }
         }
 
@@ -148,12 +159,40 @@ namespace Reflections
 
         private void KillPlayer(ZombieMirror zombie)
         {
-            Debug.Log("Killing Player");
-            this.head.transform.Rotate(new Vector3(10, 10, 10));
-            float delay = killDuration;
-            StartAttackAnimation(zombie);
-            FadeViewTo(Color.red, delay);
-            Invoke("ResetScene", delay);
+            if (!dying)
+            {
+                this.dying = true;
+                Debug.Log("Killing Player");
+                float delay = killDuration;
+                StartAttackAnimation(zombie);
+                //FadeViewTo(Color.red, delay);
+                Invoke("ResetScene", delay);
+            }
+        }
+
+        private void DriftWorld()
+        {
+            float x = UnityEngine.Random.Range(-0.00001f, 0.00001f);
+            float y = UnityEngine.Random.Range(-0.000001f, 0.000001f);
+            float z = UnityEngine.Random.Range(-0.00001f, 0.00001f);
+            float ax = UnityEngine.Random.Range(-0.05f, 0.05f);
+            float ay = UnityEngine.Random.Range(-0.05f, 0.05f);
+            float az = UnityEngine.Random.Range(-0.05f, 0.05f);
+            this.deathTranslation = this.deathTranslation + new Vector3(x, y, z);
+            this.deathRotation = this.deathRotation + new Vector3(ax, ay, az);
+            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+            {
+                if (obj.name == "NVRPlayer")
+                {
+                    Debug.Log("NOT Drifing game object: " + obj.name);
+                }
+                else
+                {
+                    Debug.Log("Drifing game object: " + obj.name);
+                    obj.transform.Translate(deathTranslation);
+                    obj.transform.Rotate(deathRotation);
+                }
+            }
         }
 
         static public void FadeViewTo(Color newColor, float duration)
@@ -165,9 +204,10 @@ namespace Reflections
 
         public void ResetScene()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            this.dying = false;
             Invoke("ClearColor", 2);
             FadeViewTo(Color.clear, 1);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         public void ClearColor()
