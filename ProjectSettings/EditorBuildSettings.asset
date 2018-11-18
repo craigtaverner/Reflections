@@ -4,4 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Reflections.unity
+    guid: f5435a0efbe3cb447821e18f5e0255d9
+  - enabled: 1
+    path: Assets/Scenes/GhostHall.unity
+    guid: c61f7dcb22fb8b54c9c997a34a3abf3f
+  m_configObjects: {}

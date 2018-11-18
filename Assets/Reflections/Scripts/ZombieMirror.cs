@@ -10,8 +10,8 @@ namespace Reflections
         public Camera player;
         public float xMirror1 = 0.0f;
         public float xMirror2 = 0.0f;
-        public float followDistance = 6;
         public float watchDistance = 8;
+        public float followDistance = 6;
         public float visibility = 0.0f;
         public bool followPlayer = false;
         public float followSpeed = 0.5f;

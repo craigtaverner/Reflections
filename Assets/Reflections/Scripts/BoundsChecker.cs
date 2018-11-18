@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NewtonVR;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Valve.VR;
 
 namespace Reflections
@@ -19,6 +20,9 @@ namespace Reflections
         private bool outsideX = false;
         private bool outsideZ = false;
         private bool faded = false;
+        public bool nextSceneOnZThreshold = false;
+        public bool loopOnZThreshold = true;
+        public string nextScene = null;
 
         void Start()
         {
@@ -76,27 +80,34 @@ namespace Reflections
                     if (outsideX)
                     {
                         Debug.Log(string.Format("Player %s is outside valid x-range: x=(%f,%f), z=(%f,%f)", pos.ToString(), minX, maxX, minZ, maxZ));
-                        if (!faded)
-                        {
-                            this.faded = true;
-                            FadeViewTo(Color.black, 0.1f);
-                        }
+                        FadeView();
                     }
                     if (outsideZ)
                     {
                         Debug.Log(string.Format("Player %s is outside valid z-range: x=(%f,%f), z=(%f,%f)", pos.ToString(), minX, maxX, minZ, maxZ));
-                        float newZ = pos.z;
-                        if (newZ > maxZ)
+                        if (nextSceneOnZThreshold)
                         {
-                            newZ = newZ - maxZ + minZ;
+                            this.NextScene();
                         }
-                        if (newZ < minZ)
+                        else if (loopOnZThreshold)
                         {
-                            newZ = newZ + maxZ - minZ;
+                            float newZ = pos.z;
+                            if (newZ > maxZ)
+                            {
+                                newZ = newZ - maxZ + minZ;
+                            }
+                            if (newZ < minZ)
+                            {
+                                newZ = newZ + maxZ - minZ;
+                            }
+                            // Use the head (camera) to determine out of bounds position, but set the player position (which sets player, hands and head)
+                            pos = this.player.transform.position;
+                            this.player.transform.position = new Vector3(pos.x, pos.y, newZ);
                         }
-                        // Use the head (camera) to determine out of bounds position, but set the player position (which sets player, hands and head)
-                        pos = this.player.transform.position;
-                        this.player.transform.position = new Vector3(pos.x, pos.y, newZ);
+                        else
+                        {
+                            FadeView();
+                        }
                     }
                 }
                 else if (faded)
@@ -104,6 +115,28 @@ namespace Reflections
                     this.faded = false;
                     FadeViewTo(Color.clear, 0.2f);
                 }
+            }
+        }
+
+        private void FadeView()
+        {
+            if (!faded)
+            {
+                this.faded = true;
+                FadeViewTo(Color.black, 0.1f);
+            }
+        }
+
+        private void SetNextScene(string sceneName)
+        {
+            this.nextScene = sceneName;
+        }
+
+        public void NextScene()
+        {
+            if (nextScene != null)
+            {
+                SceneManager.LoadScene(nextScene, LoadSceneMode.Single);
             }
         }
 

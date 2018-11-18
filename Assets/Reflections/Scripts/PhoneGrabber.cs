@@ -11,6 +11,7 @@ namespace Reflections
         public Camera avatarCamera;
         public Camera phoneCamera;
         internal PhoneController heldPhone;
+        internal BoundsChecker boundsChecker;
 
         void Start()
         {
@@ -28,6 +29,10 @@ namespace Reflections
                         phoneCamera = cam;
                     }
                 }
+            }
+            if (boundsChecker == null)
+            {
+                this.boundsChecker = Component.FindObjectOfType<BoundsChecker>();
             }
         }
 
@@ -66,6 +71,10 @@ namespace Reflections
             foreach (ZombieMirror zombie in Component.FindObjectsOfType<ZombieMirror>())
             {
                 zombie.followPlayer = followPlayer;
+            }
+            if (boundsChecker != null)
+            {
+                this.boundsChecker.nextSceneOnZThreshold = followPlayer;
             }
         }
     }
